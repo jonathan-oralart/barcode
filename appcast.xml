@@ -8,106 +8,25 @@
         <language>en</language>
 
     <item>
-        <title>Version 1.6</title>
+        <title>Version 1.2</title>
         <description><![CDATA[
-            <h2>What's New in Version 1.6</h2>
+            <h2>What's New in Version 1.2</h2>
             <ul>
                 <li>New features and improvements</li>
                 <li>Bug fixes and performance enhancements</li>
             </ul>
         ]]></description>
-        <pubDate>Mon, 24 Nov 2025 21:40:59 +0000</pubDate>
+        <pubDate>Mon, 24 Nov 2025 21:49:51 +0000</pubDate>
         <enclosure
-            url="https://github.com/jonathan-oralart/barcode/releases/download/v1.6/barcode-1.6.zip"
-            sparkle:version="1.6"
-            sparkle:shortVersionString="1.6"
-            length="2701917"
+            url="https://github.com/jonathan-oralart/barcode/releases/download/v1.2/barcode-1.2.zip"
+            sparkle:version="1.2"
+            sparkle:shortVersionString="1.2"
+            length="2701926"
             type="application/octet-stream" />
         <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
     </item>
 
 
-    <item>
-        <title>Version 1.5</title>
-        <description><![CDATA[
-            <h2>What's New in Version 1.5</h2>
-            <ul>
-                <li>New features and improvements</li>
-                <li>Bug fixes and performance enhancements</li>
-            </ul>
-        ]]></description>
-        <pubDate>Mon, 24 Nov 2025 21:38:47 +0000</pubDate>
-        <enclosure
-            url="https://github.com/jonathan-oralart/barcode/releases/download/v1.5/barcode-1.5.zip"
-            sparkle:version="1.5"
-            sparkle:shortVersionString="1.5"
-            length="2701918"
-            type="application/octet-stream" />
-        <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
-    </item>
-
-
-    <item>
-        <title>Version 1.4</title>
-        <description><![CDATA[
-            <h2>What's New in Version 1.4</h2>
-            <ul>
-                <li>New features and improvements</li>
-                <li>Bug fixes and performance enhancements</li>
-            </ul>
-        ]]></description>
-        <pubDate>Mon, 24 Nov 2025 21:35:11 +0000</pubDate>
-        <enclosure
-            url="https://github.com/jonathan-oralart/barcode/releases/download/v1.4/barcode-1.4.zip"
-            sparkle:version="1.4"
-            sparkle:shortVersionString="1.4"
-            length="2701910"
-            type="application/octet-stream" />
-        <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
-    </item>
-
-
-        <!-- Version 1.1 - Example Update -->
-        <item>
-            <title>Version 1.1</title>
-            <description><![CDATA[
-                <h2>What's New in Version 1.1</h2>
-                <ul>
-                    <li>✨ Added automatic update support with Sparkle</li>
-                    <li>🔄 New "Check for Updates" menu option</li>
-                    <li>🐛 Bug fixes and performance improvements</li>
-                </ul>
-            ]]></description>
-            <pubDate>Mon, 24 Nov 2025 12:00:00 +0000</pubDate>
-            <enclosure
-                url="https://github.com/jonathan-oralart/barcode/releases/download/v1.1/barcode-1.1.zip"
-                sparkle:version="1.1"
-                sparkle:shortVersionString="1.1"
-                length="0"
-                type="application/octet-stream" />
-            <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
-        </item>
-
-        <!-- Version 1.0 - Initial Release -->
-        <item>
-            <title>Version 1.0</title>
-            <description><![CDATA[
-                <h2>Initial Release</h2>
-                <ul>
-                    <li>USB barcode scanner support</li>
-                    <li>Automatic Chrome launch with scanned codes</li>
-                    <li>Menu bar interface</li>
-                </ul>
-            ]]></description>
-            <pubDate>Sun, 23 Nov 2025 12:00:00 +0000</pubDate>
-            <enclosure
-                url="https://github.com/jonathan-oralart/barcode/releases/download/v1.0/barcode-1.0.zip"
-                sparkle:version="1.0"
-                sparkle:shortVersionString="1.0"
-                length="0"
-                type="application/octet-stream" />
-            <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
-        </item>
 
     </channel>
 </rss>
