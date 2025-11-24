@@ -8,5 +8,8 @@
 		<true />
 		<key>SUScheduledCheckInterval</key>
 		<integer>86400</integer>
+		<key>NSAccessibilityUsageDescription</key>
+		<string>This app needs Accessibility permission to block barcode scanner input from
+			appearing in other applications.</string>
 	</dict>
 </plist>
