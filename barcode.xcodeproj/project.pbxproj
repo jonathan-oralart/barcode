@@ -6,15 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4FDB71CF2ED4106F005CA775 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 4FDB71CE2ED4106F005CA775 /* Sparkle */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		4F6517F12ED3FD5C000A12A3 /* barcode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = barcode.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4F6517F32ED3FD5C000A12A3 /* barcode */ = {
@@ -29,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FDB71CF2ED4106F005CA775 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +70,7 @@
 			);
 			name = barcode;
 			packageProductDependencies = (
+				4FDB71CE2ED4106F005CA775 /* Sparkle */,
 			);
 			productName = barcode;
 			productReference = 4F6517F12ED3FD5C000A12A3 /* barcode.app */;
@@ -100,6 +100,9 @@
 			);
 			mainGroup = 4F6517E82ED3FD5C000A12A3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4FDB71CD2ED4106F005CA775 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4F6517F22ED3FD5C000A12A3 /* Products */;
 			projectDirPath = "";
@@ -355,6 +358,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4FDB71CD2ED4106F005CA775 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4FDB71CE2ED4106F005CA775 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4FDB71CD2ED4106F005CA775 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4F6517E92ED3FD5C000A12A3 /* Project object */;
 }
