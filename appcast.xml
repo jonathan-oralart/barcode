@@ -8,6 +8,26 @@
         <language>en</language>
 
     <item>
+        <title>Version 1.6</title>
+        <description><![CDATA[
+            <h2>What's New in Version 1.6</h2>
+            <ul>
+                <li>New features and improvements</li>
+                <li>Bug fixes and performance enhancements</li>
+            </ul>
+        ]]></description>
+        <pubDate>Mon, 24 Nov 2025 21:40:59 +0000</pubDate>
+        <enclosure
+            url="https://github.com/jonathan-oralart/barcode/releases/download/v1.6/barcode-1.6.zip"
+            sparkle:version="1.6"
+            sparkle:shortVersionString="1.6"
+            length="2701917"
+            type="application/octet-stream" />
+        <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
+    </item>
+
+
+    <item>
         <title>Version 1.5</title>
         <description><![CDATA[
             <h2>What's New in Version 1.5</h2>
