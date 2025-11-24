@@ -1,9 +1,17 @@
 import Cocoa
 import IOKit.hid
+import Sparkle
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     let scanner = USBBarcodeScanner()
     var statusItem: NSStatusItem?
+    private let updaterController: SPUStandardUpdaterController
+    
+    override init() {
+        // Initialize Sparkle updater
+        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+        super.init()
+    }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Create menu bar icon
@@ -14,6 +22,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "USB Barcode Scanner Active", action: nil, keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "List USB Devices", action: #selector(listDevices), keyEquivalent: "l"))
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "u"))
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         statusItem?.menu = menu
         
@@ -22,6 +32,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc func listDevices() {
         listUSBDevices()
+    }
+    
+    @objc func checkForUpdates() {
+        updaterController.checkForUpdates(nil)
     }
     
     @objc func quit() {
