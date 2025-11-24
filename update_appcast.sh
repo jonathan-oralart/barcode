@@ -6,7 +6,7 @@ if [ $# -lt 2 ]; then
     echo ""
     echo "Example: ./update_appcast.sh 1.1 2534567"
     echo ""
-    echo "This will automatically update appcast.xml on gh-pages branch"
+    echo "This will automatically update appcast.xml on main branch"
     exit 1
 fi
 
@@ -26,8 +26,17 @@ DOWNLOAD_URL="https://github.com/${REPO_NAME}/releases/download/v${VERSION}/barc
 
 echo "📝 Updating appcast for version ${VERSION}..."
 
-# Create new item XML
-NEW_ITEM="    <item>
+# Check if appcast.xml exists
+APPCAST_FILE="appcast.xml"
+if [ ! -f "$APPCAST_FILE" ]; then
+    echo "❌ appcast.xml not found in repository root"
+    echo "   Please create it first - see GITHUB_UPDATES_GUIDE.md"
+    exit 1
+fi
+
+# Create new item XML in a temporary file
+cat > "${APPCAST_FILE}.new_item" << EOF
+    <item>
         <title>Version ${VERSION}</title>
         <description><![CDATA[
             <h2>What's New in Version ${VERSION}</h2>
@@ -38,51 +47,36 @@ NEW_ITEM="    <item>
         ]]></description>
         <pubDate>$(date -u +"%a, %d %b %Y %H:%M:%S %z")</pubDate>
         <enclosure 
-            url=\"${DOWNLOAD_URL}\" 
-            sparkle:version=\"${VERSION}\" 
-            sparkle:shortVersionString=\"${VERSION}\"
-            length=\"${FILE_SIZE}\" 
-            type=\"application/octet-stream\" />
+            url="${DOWNLOAD_URL}" 
+            sparkle:version="${VERSION}" 
+            sparkle:shortVersionString="${VERSION}"
+            length="${FILE_SIZE}" 
+            type="application/octet-stream" />
         <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
-    </item>"
-
-# Save current branch
-CURRENT_BRANCH=$(git branch --show-current)
-
-# Switch to gh-pages and update
-echo "🔄 Switching to gh-pages branch..."
-git checkout gh-pages
-git pull
-
-# Check if appcast.xml exists
-if [ ! -f "appcast.xml" ]; then
-    echo "❌ appcast.xml not found on gh-pages branch"
-    echo "   Please create it first - see GITHUB_UPDATES_GUIDE.md"
-    git checkout "$CURRENT_BRANCH"
-    exit 1
-fi
+    </item>
+EOF
 
 # Insert new item after <language>en</language> line
 echo "✏️  Adding new release to appcast.xml..."
-awk -v new="$NEW_ITEM" '
+awk '
     /<language>en<\/language>/ {
         print
         print ""
-        print new
+        while ((getline line < "'"${APPCAST_FILE}.new_item"'") > 0) {
+            print line
+        }
         print ""
         next
     }
     {print}
-' appcast.xml > appcast.xml.tmp
-mv appcast.xml.tmp appcast.xml
+' "$APPCAST_FILE" > "${APPCAST_FILE}.tmp"
+mv "${APPCAST_FILE}.tmp" "$APPCAST_FILE"
+rm "${APPCAST_FILE}.new_item"
 
 # Commit and push
 git add appcast.xml
 git commit -m "Release v${VERSION}"
 git push
-
-# Switch back to original branch
-git checkout "$CURRENT_BRANCH"
 
 OWNER=$(gh repo view --json owner -q '.owner.login')
 REPO=$(gh repo view --json name -q '.name')
