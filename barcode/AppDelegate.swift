@@ -16,7 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Create menu bar icon
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem?.button?.title = "📊"
+        statusItem?.button?.title = "🔎"
         
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "USB Barcode Scanner Active", action: nil, keyEquivalent: ""))

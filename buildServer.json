@@ -1,0 +1,19 @@
+{
+	"name": "xcode build server",
+	"version": "0.2",
+	"bspVersion": "2.0",
+	"languages": [
+		"c",
+		"cpp",
+		"objective-c",
+		"objective-cpp",
+		"swift"
+	],
+	"argv": [
+		"/opt/homebrew/bin/xcode-build-server"
+	],
+	"workspace": "/Users/oralart/Repos/barcode/barcode.xcodeproj/project.xcworkspace",
+	"build_root": "/Users/oralart/Library/Developer/Xcode/DerivedData/barcode-atexpnaiupcwrwgsvwjgrrfhzypp",
+	"scheme": "barcode",
+	"kind": "xcode"
+}
