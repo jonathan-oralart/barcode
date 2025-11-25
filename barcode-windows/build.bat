@@ -13,12 +13,12 @@ if errorlevel 1 (
 
 REM Install dependencies
 echo Installing dependencies...
-pip install -r requirements.txt
-pip install pyinstaller
+python -m pip install -r requirements.txt
+python -m pip install pyinstaller
 
 echo.
 echo Building executable...
-pyinstaller --onefile --windowed --name "Barcode Scanner" barcode_scanner.py
+python -m PyInstaller --onefile --windowed --name "Barcode Scanner" barcode_scanner.py
 
 echo.
 echo Done! Executable is in the 'dist' folder.

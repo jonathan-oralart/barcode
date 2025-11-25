@@ -2,12 +2,76 @@
 # Windows USB Barcode Scanner - System Tray App
 # Monitors Symbol Bar Code Scanner and opens URLs in browser
 
-import hid
-import webbrowser
-import time
-from pystray import Icon, Menu, MenuItem
-from PIL import Image, ImageDraw
-import threading
+import sys
+import os
+import winreg
+import ctypes
+from ctypes import wintypes
+
+# Check for VC++ Redistributable before importing other modules
+def check_vcredist():
+    """Check if Visual C++ Redistributable is installed."""
+    try:
+        # Try to check registry for VC++ 2015-2022 redistributable
+        registry_paths = [
+            r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64",
+            r"SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64",
+        ]
+        
+        for path in registry_paths:
+            try:
+                key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path)
+                winreg.CloseKey(key)
+                return True
+            except WindowsError:
+                continue
+        
+        # If registry check fails, return True to avoid false positives
+        return True
+    except Exception:
+        return True
+
+def show_vcredist_error():
+    """Show error message if VC++ Redistributable is missing."""
+    message = (
+        "Microsoft Visual C++ Redistributable is required but may not be installed.\n\n"
+        "Please download and install it from:\n"
+        "https://aka.ms/vs/17/release/vc_redist.x64.exe\n\n"
+        "After installation, restart this application."
+    )
+    ctypes.windll.user32.MessageBoxW(
+        0, 
+        message, 
+        "Missing Dependency - Barcode Scanner", 
+        0x10  # MB_ICONERROR
+    )
+    sys.exit(1)
+
+# Check VC++ before importing dependencies that might need it
+if not check_vcredist():
+    show_vcredist_error()
+
+try:
+    import hid
+    import webbrowser
+    import time
+    from pystray import Icon, Menu, MenuItem
+    from PIL import Image, ImageDraw
+    import threading
+    import tkinter as tk
+    from tkinter import scrolledtext
+    from datetime import datetime
+except ImportError as e:
+    if "DLL load failed" in str(e) or "VCRUNTIME" in str(e):
+        show_vcredist_error()
+    else:
+        ctypes.windll.user32.MessageBoxW(
+            0,
+            f"Failed to import required modules:\n\n{str(e)}\n\nPlease reinstall the application.",
+            "Import Error - Barcode Scanner",
+            0x10  # MB_ICONERROR
+        )
+        sys.exit(1)
 
 # Symbol Bar Code Scanner IDs
 VENDOR_ID = 0x05E0   # 1504
@@ -15,6 +79,108 @@ PRODUCT_ID = 0x1200  # 4608
 
 # Target URL template
 URL_TEMPLATE = "https://lms.3shape.com/pages/admin/case_list.asp?page=case_search_result&cmd=search_result&searchbox_text={barcode}"
+
+
+class LogWindow:
+    """Simple GUI window to display log output."""
+    def __init__(self):
+        self.window = None
+        self.text_widget = None
+        self.visible = False
+        self.log_buffer = []
+        
+    def create_window(self):
+        """Create the log window."""
+        if self.window:
+            return
+            
+        self.window = tk.Tk()
+        self.window.title("Barcode Scanner - Log")
+        self.window.geometry("800x600")
+        
+        # Create text widget with scrollbar
+        self.text_widget = scrolledtext.ScrolledText(
+            self.window,
+            wrap=tk.WORD,
+            font=("Consolas", 9),
+            bg="#1e1e1e",
+            fg="#d4d4d4",
+            insertbackground="#d4d4d4"
+        )
+        self.text_widget.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # Configure tags for colored output
+        self.text_widget.tag_config("error", foreground="#f48771")
+        self.text_widget.tag_config("success", foreground="#7fcd91")
+        self.text_widget.tag_config("info", foreground="#75beff")
+        self.text_widget.tag_config("warning", foreground="#ffd700")
+        
+        # Handle window close
+        self.window.protocol("WM_DELETE_WINDOW", self.hide)
+        
+        # Add any buffered logs
+        for log_entry in self.log_buffer:
+            self._append_to_widget(log_entry)
+        self.log_buffer.clear()
+        
+        self.window.withdraw()  # Start hidden
+        
+    def _append_to_widget(self, message):
+        """Append message to text widget with appropriate color."""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        full_message = f"[{timestamp}] {message}\n"
+        
+        # Determine color based on emoji/content
+        tag = "info"
+        if "✅" in message or "success" in message.lower():
+            tag = "success"
+        elif "❌" in message or "error" in message.lower():
+            tag = "error"
+        elif "⚠️" in message or "warning" in message.lower():
+            tag = "warning"
+        
+        self.text_widget.insert(tk.END, full_message, tag)
+        self.text_widget.see(tk.END)
+        
+    def log(self, message):
+        """Add a log message."""
+        if self.text_widget:
+            self.text_widget.after(0, self._append_to_widget, message)
+        else:
+            # Buffer logs before window is created
+            self.log_buffer.append(message)
+    
+    def show(self):
+        """Show the log window."""
+        if self.window:
+            self.window.deiconify()
+            self.window.lift()
+            self.window.focus_force()
+            self.visible = True
+    
+    def hide(self):
+        """Hide the log window."""
+        if self.window:
+            self.window.withdraw()
+            self.visible = False
+    
+    def toggle(self):
+        """Toggle log window visibility."""
+        if self.visible:
+            self.hide()
+        else:
+            self.show()
+
+
+# Global log window instance
+log_window = None
+
+
+def log_print(message):
+    """Print to both console and GUI log."""
+    print(message)
+    if log_window:
+        log_window.log(message)
 
 
 def hid_to_char(usage):
@@ -44,18 +210,18 @@ def open_url(barcode):
     """Open the URL with the scanned barcode."""
     url = URL_TEMPLATE.format(barcode=barcode)
     webbrowser.open(url)
-    print(f"✅ Opened: {barcode}")
+    log_print(f"✅ Opened: {barcode}")
 
 
 def list_hid_devices():
     """List all connected HID devices."""
-    print("\n=== Connected USB HID Devices ===\n")
+    log_print("\n=== Connected USB HID Devices ===\n")
     for device in hid.enumerate():
-        print(f"Device: {device.get('product_string', 'Unknown')}")
-        print(f"Manufacturer: {device.get('manufacturer_string', 'Unknown')}")
-        print(f"Vendor ID: 0x{device['vendor_id']:04X} ({device['vendor_id']})")
-        print(f"Product ID: 0x{device['product_id']:04X} ({device['product_id']})")
-        print("---")
+        log_print(f"Device: {device.get('product_string', 'Unknown')}")
+        log_print(f"Manufacturer: {device.get('manufacturer_string', 'Unknown')}")
+        log_print(f"Vendor ID: 0x{device['vendor_id']:04X} ({device['vendor_id']})")
+        log_print(f"Product ID: 0x{device['product_id']:04X} ({device['product_id']})")
+        log_print("---")
 
 
 def scanner_loop(stop_event, status_callback):
@@ -65,7 +231,7 @@ def scanner_loop(stop_event, status_callback):
             device = hid.device()
             device.open(VENDOR_ID, PRODUCT_ID)
             device.set_nonblocking(True)
-            print("✅ Scanner connected")
+            log_print("✅ Scanner connected")
             status_callback(True)
             
             buffer = ""
@@ -79,7 +245,7 @@ def scanner_loop(stop_event, status_callback):
                     # Reset buffer if too much time has passed (100ms timeout)
                     if current_time - last_key_time > 0.1:
                         if buffer:
-                            print(f"⏱️ Timeout - resetting buffer: {buffer}")
+                            log_print(f"⏱️ Timeout - resetting buffer: {buffer}")
                         buffer = ""
                     
                     last_key_time = current_time
@@ -91,21 +257,21 @@ def scanner_loop(stop_event, status_callback):
                         char = hid_to_char(key)
                         if char == '\n':
                             if buffer:
-                                print(f"📊 Barcode scanned: {buffer}")
+                                log_print(f"📊 Barcode scanned: {buffer}")
                                 open_url(buffer)
                                 buffer = ""
                         elif char:
                             buffer += char
-                            print(f"📝 Buffer: {buffer}")
+                            log_print(f"📝 Buffer: {buffer}")
                             
                 time.sleep(0.01)
                 
         except OSError as e:
-            print(f"Scanner disconnected or not found: {e}")
+            log_print(f"❌ Scanner disconnected or not found: {e}")
             status_callback(False)
             time.sleep(2)
         except Exception as e:
-            print(f"Error: {e}")
+            log_print(f"❌ Error: {e}")
             status_callback(False)
             time.sleep(2)
 
@@ -132,6 +298,8 @@ class BarcodeScannerApp:
         self.stop_event = threading.Event()
         self.connected = False
         self.icon = None
+        global log_window
+        log_window = LogWindow()
         
     def update_status(self, connected):
         """Update connection status and icon."""
@@ -141,16 +309,26 @@ class BarcodeScannerApp:
             
     def quit_app(self, icon, item):
         """Clean shutdown."""
-        print("Shutting down...")
+        log_print("🛑 Shutting down...")
         self.stop_event.set()
         icon.stop()
+        if log_window and log_window.window:
+            log_window.window.quit()
         
     def show_devices(self, icon, item):
         """List connected HID devices."""
         list_hid_devices()
+    
+    def toggle_log(self, icon, item):
+        """Toggle log window visibility."""
+        if log_window:
+            log_window.toggle()
         
     def run(self):
         """Start the application."""
+        # Create log window in main thread
+        log_window.create_window()
+        
         # Start scanner thread
         scanner_thread = threading.Thread(
             target=scanner_loop,
@@ -159,20 +337,29 @@ class BarcodeScannerApp:
         )
         scanner_thread.start()
         
-        # Create and run system tray icon
-        self.icon = Icon(
-            "Barcode Scanner",
-            create_icon(False),
-            menu=Menu(
-                MenuItem("USB Barcode Scanner", lambda: None, enabled=False),
-                MenuItem("List USB Devices", self.show_devices),
-                Menu.SEPARATOR,
-                MenuItem("Quit", self.quit_app)
+        # Create system tray icon in a separate thread
+        def run_icon():
+            self.icon = Icon(
+                "Barcode Scanner",
+                create_icon(False),
+                menu=Menu(
+                    MenuItem("USB Barcode Scanner", lambda: None, enabled=False),
+                    MenuItem("Show/Hide Log", self.toggle_log),
+                    MenuItem("List USB Devices", self.show_devices),
+                    Menu.SEPARATOR,
+                    MenuItem("Quit", self.quit_app)
+                )
             )
-        )
+            self.icon.run()
         
-        print("🔎 Barcode Scanner started - check system tray")
-        self.icon.run()
+        icon_thread = threading.Thread(target=run_icon, daemon=True)
+        icon_thread.start()
+        
+        log_print("🔎 Barcode Scanner started - check system tray")
+        log_print("💡 Click 'Show/Hide Log' in tray menu to view this window")
+        
+        # Run tkinter main loop
+        log_window.window.mainloop()
 
 
 def main():
