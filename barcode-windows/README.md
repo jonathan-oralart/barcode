@@ -7,15 +7,58 @@ A Windows system tray application that monitors a USB barcode scanner and opens 
 - Runs in the system tray
 - Monitors Symbol Bar Code Scanner (Vendor ID: 0x05E0, Product ID: 0x1200)
 - Automatically opens scanned barcodes in your default browser
-- Blocks scanner input from reaching other applications (via exclusive HID access)
+- **Exclusive access** - Scanner input does NOT go to other applications
 
 ## Requirements
 
 - Windows 10/11
-- Python 3.8+
-- The USB barcode scanner must be connected
+- Python 3.8+ (for development)
+- USB barcode scanner
+- **WinUSB driver** (installed via Zadig - see setup below)
+
+## ⚠️ IMPORTANT: First-Time Setup (WinUSB Driver)
+
+Before the application can work, you must replace the scanner's default driver with WinUSB. This is a **one-time setup**.
+
+### Step 1: Download Zadig
+
+Download Zadig from: https://zadig.akeo.ie/
+
+### Step 2: Install WinUSB Driver
+
+1. **Plug in your barcode scanner**
+2. **Run Zadig as Administrator**
+3. Go to **Options → List All Devices**
+4. Select **"Symbol Bar Code Scanner"** from the dropdown
+5. Make sure the target driver shows **WinUSB**
+6. Click **"Replace Driver"**
+7. Wait for installation to complete
+
+![Zadig Screenshot](https://zadig.akeo.ie/images/zadig_hid.png)
+
+### Step 3: Verify
+
+After installation:
+- The scanner will **no longer work as a keyboard** (this is expected!)
+- The scanner will **only work with this application**
+- Run the Barcode Scanner app - it should now connect successfully
+
+### Reverting the Driver (Optional)
+
+If you need to restore the original keyboard functionality:
+1. Open **Device Manager**
+2. Find the scanner under "Universal Serial Bus devices"
+3. Right-click → **Uninstall device** (check "Delete driver software")
+4. Unplug and replug the scanner
+5. Windows will reinstall the default HID driver
 
 ## Installation
+
+### Option 1: Use Pre-built Executable
+
+Download `Barcode Scanner.exe` from the `dist` folder and run it.
+
+### Option 2: Run from Source
 
 1. Install Python from https://python.org
 
@@ -31,8 +74,13 @@ A Windows system tray application that monitors a USB barcode scanner and opens 
 
 ## Building an Executable
 
-To create a standalone `.exe` file that doesn't require Python:
+To create a standalone `.exe` file:
 
+```bash
+build.bat
+```
+
+Or manually:
 ```bash
 pip install pyinstaller
 pyinstaller --onefile --windowed --name "Barcode Scanner" barcode_scanner.py
@@ -59,19 +107,30 @@ URL_TEMPLATE = "https://your-url.com?barcode={barcode}"
 
 ## Usage
 
-1. Start the application
-2. Look for the barcode icon in your system tray
-3. Scan a barcode with your scanner
-4. The URL will open in your default browser
+1. Complete the WinUSB driver setup (above)
+2. Start the application
+3. Look for the barcode icon in your system tray (green = connected)
+4. Scan a barcode with your scanner
+5. The URL will open in your default browser
 
 ## Troubleshooting
+
+### "Cannot access scanner - WinUSB driver may not be installed"
+- You need to install the WinUSB driver using Zadig (see setup above)
 
 ### Scanner not detected
 - Make sure the scanner is plugged in
 - Check the Vendor ID and Product ID match your scanner
-- Try running as Administrator
+- Make sure you've installed the WinUSB driver
+
+### Scanner detected but no data received
+- Check the log window (Show/Hide Log in tray menu)
+- Try unplugging and replugging the scanner
 
 ### Need to find your scanner's IDs
 - Run the app and click "List USB Devices" in the tray menu
 - Look for your scanner in the list
 
+### Want to use scanner as keyboard again
+- Uninstall the WinUSB driver via Device Manager
+- Unplug and replug the scanner
