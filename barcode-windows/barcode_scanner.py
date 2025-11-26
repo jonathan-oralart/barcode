@@ -111,6 +111,26 @@ def hid_to_char(code, shift=False):
     return HID_CHARS.get(code)
 
 # ============================================================================
+# Window Detection
+# ============================================================================
+
+def get_foreground_window_title():
+    """Get the title of the currently active foreground window."""
+    hwnd = ctypes.windll.user32.GetForegroundWindow()
+    if not hwnd:
+        return ""
+    
+    # Get the length of the window title
+    length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+    if length == 0:
+        return ""
+    
+    # Create a buffer and get the title
+    buffer = ctypes.create_unicode_buffer(length + 1)
+    ctypes.windll.user32.GetWindowTextW(hwnd, buffer, length + 1)
+    return buffer.value
+
+# ============================================================================
 # Keyboard Simulation (for passthrough mode)
 # ============================================================================
 
@@ -291,6 +311,15 @@ class App:
                 self.icon.update_menu()
             return
         
+        # Check if ScanPark is the foreground window - auto-switch to keyboard mode
+        window_title = get_foreground_window_title()
+        if window_title == "ScanPark - Google Chrome":
+            if self.enabled:  # Only switch if not already in keyboard mode
+                self.enabled = False
+                print("🔄 Auto: ScanPark detected, switched to Keyboard mode")
+                self.icon.icon = create_icon_image(self.connected, self.enabled)
+                self.icon.update_menu()
+        
         # Normal barcode processing
         if self.enabled:
             open_url(barcode)
@@ -316,9 +345,6 @@ class App:
         icon.stop()
     
     def run(self):
-        scanner = USBBarcodeScanner(self.handle_barcode, self.update_status)
-        threading.Thread(target=scanner.read_loop, args=(self.stop_event,), daemon=True).start()
-        
         self.icon = Icon(
             "Barcode Scanner",
             create_icon_image(False, self.enabled),
@@ -336,9 +362,14 @@ class App:
             )
         )
         
-        print("✅ Barcode Scanner started - check system tray")
-        print("⌨️ Mode: Keyboard Input (click tray icon to toggle)")
-        self.icon.run()
+        def on_ready(icon):
+            """Called when the icon is ready - start the scanner thread."""
+            print("✅ Barcode Scanner started - check system tray")
+            print("⌨️ Mode: Keyboard Input (click tray icon to toggle)")
+            scanner = USBBarcodeScanner(self.handle_barcode, self.update_status)
+            threading.Thread(target=scanner.read_loop, args=(self.stop_event,), daemon=True).start()
+        
+        self.icon.run(setup=on_ready)
 
 def main():
     ensure_single_instance()
