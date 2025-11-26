@@ -274,7 +274,24 @@ class App:
         self.connected = False
         
     def handle_barcode(self, barcode):
-        """Route barcode based on enabled state."""
+        """Route barcode based on enabled state, or handle command barcodes."""
+        # Check for command barcodes
+        if barcode == "[COMMAND] Keyboard":
+            if self.enabled:  # Only switch if not already in keyboard mode
+                self.enabled = False
+                print("🔄 Command: Switched to Keyboard mode")
+                self.icon.icon = create_icon_image(self.connected, self.enabled)
+                self.icon.update_menu()
+            return
+        elif barcode == "[COMMAND] Link":
+            if not self.enabled:  # Only switch if not already in link mode
+                self.enabled = True
+                print("🔄 Command: Switched to URL mode")
+                self.icon.icon = create_icon_image(self.connected, self.enabled)
+                self.icon.update_menu()
+            return
+        
+        # Normal barcode processing
         if self.enabled:
             open_url(barcode)
         else:
