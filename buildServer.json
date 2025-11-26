@@ -12,8 +12,8 @@
 	"argv": [
 		"/opt/homebrew/bin/xcode-build-server"
 	],
-	"workspace": "/Users/oralart/Repos/barcode/barcode.xcodeproj/project.xcworkspace",
-	"build_root": "/Users/oralart/Library/Developer/Xcode/DerivedData/barcode-atexpnaiupcwrwgsvwjgrrfhzypp",
+	"workspace": "/Users/oralart/Repos/App/barcode/barcode.xcodeproj/project.xcworkspace",
+	"build_root": "/Users/oralart/Library/Developer/Xcode/DerivedData/barcode-gdkoaxzduhmhpvgxqgauinaeemia",
 	"scheme": "barcode",
 	"kind": "xcode"
 }
