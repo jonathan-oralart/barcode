@@ -19,6 +19,9 @@ class USBBarcodeScanner {
     private let targetVendorID: Int? = 0x05E0  // 1504
     private let targetProductID: Int? = 0x1200 // 4608
     
+    // Window title that should receive direct keyboard input
+    private let passthroughWindowTitle = "Page 1 | Create Courier Ticket"
+    
     // Static reference for the event tap callback
     private static var sharedInstance: USBBarcodeScanner?
     
@@ -120,9 +123,53 @@ class USBBarcodeScanner {
     }
     
     private func shouldBlockEvent() -> Bool {
-        // Block events while we're receiving scanner input
-        // Scanner input is characterized by very rapid keystrokes
-        return isReceivingScannerInput
+        // Only consider blocking if we're receiving scanner input
+        // This avoids expensive window checks on every normal keystroke
+        guard isReceivingScannerInput else {
+            return false
+        }
+        
+        // We're receiving scanner input - check if passthrough window is active
+        // Only do this expensive check when actually needed
+        if isPassthroughWindowActive() {
+            return false
+        }
+        
+        return true
+    }
+    
+    private func isPassthroughWindowActive() -> Bool {
+        // Get the frontmost application
+        guard let frontApp = NSWorkspace.shared.frontmostApplication else {
+            return false
+        }
+        
+        let pid = frontApp.processIdentifier
+        
+        // Get the accessibility element for the app
+        let appElement = AXUIElementCreateApplication(pid)
+        
+        // Get the focused window
+        var focusedWindow: CFTypeRef?
+        let result = AXUIElementCopyAttributeValue(appElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
+        
+        guard result == .success, let window = focusedWindow else {
+            return false
+        }
+        
+        // Get the window title
+        var windowTitle: CFTypeRef?
+        let titleResult = AXUIElementCopyAttributeValue(window as! AXUIElement, kAXTitleAttribute as CFString, &windowTitle)
+        
+        guard titleResult == .success, let title = windowTitle as? String else {
+            return false
+        }
+        
+        let isPassthrough = title.contains(passthroughWindowTitle)
+        if isPassthrough {
+            print("🎯 Passthrough mode: window '\(title)' is active")
+        }
+        return isPassthrough
     }
     
     private func handleInputValue(_ value: IOHIDValue) {
@@ -138,6 +185,9 @@ class USBBarcodeScanner {
         
         let currentTime = Date()
         
+        // Check if passthrough window is active - if so, let keystrokes pass through naturally
+        let isPassthrough = isPassthroughWindowActive()
+        
         // Reset buffer if too much time has passed
         if currentTime.timeIntervalSince(lastKeystrokeTime) > keystrokeTimeout {
             if !barcodeBuffer.isEmpty {
@@ -145,6 +195,20 @@ class USBBarcodeScanner {
             }
             barcodeBuffer = ""
             isReceivingScannerInput = false
+        }
+        
+        // If passthrough mode, don't block or process - just let keystrokes go through
+        if isPassthrough {
+            // Still track timing but don't block
+            lastKeystrokeTime = currentTime
+            if let character = convertHIDUsageToCharacter(Int(usage)) {
+                if character == "\n" {
+                    print("📊 Passthrough: barcode scan complete (letting keystrokes through)")
+                } else {
+                    print("⌨️ Passthrough: \(character)")
+                }
+            }
+            return
         }
         
         // Mark that we're receiving scanner input
