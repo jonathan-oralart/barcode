@@ -54,11 +54,26 @@ If you need to restore the original keyboard functionality:
 
 ## Installation
 
-### Option 1: Use Pre-built Executable
+### Option 1: Automatic Setup (Recommended for New Computers)
+
+Run the setup script to automatically install everything:
+
+1. Download `setup.bat` from this repository
+2. Double-click `setup.bat` to run it
+3. Follow the prompts
+
+The script will:
+- Install Git (if not present)
+- Install Python 3 (if not present)
+- Clone this repository to your user folder
+- Install all Python dependencies
+- Create a desktop shortcut
+
+### Option 2: Use Pre-built Executable
 
 Download `Barcode Scanner.exe` from the `dist` folder and run it.
 
-### Option 2: Run from Source
+### Option 3: Run from Source
 
 1. Install Python from https://python.org
 
