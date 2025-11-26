@@ -27,6 +27,8 @@ try:
     import usb.backend.libusb1
     import webbrowser
     import time
+    import os
+    import json
     from pystray import Icon, Menu, MenuItem
     from PIL import Image, ImageDraw, ImageFont
     import threading
@@ -43,6 +45,33 @@ except ImportError as e:
 VENDOR_ID = 0x05E0
 PRODUCT_ID = 0x1200
 URL_TEMPLATE = "https://lms.3shape.com/pages/admin/case_list.asp?page=case_search_result&cmd=search_result&searchbox_text={barcode}"
+
+# ============================================================================
+# Settings Persistence
+# ============================================================================
+
+def get_config_path():
+    """Get the path to the config file in AppData."""
+    appdata = os.environ.get('APPDATA', os.path.expanduser('~'))
+    config_dir = os.path.join(appdata, 'BarcodeScanner')
+    os.makedirs(config_dir, exist_ok=True)
+    return os.path.join(config_dir, 'settings.json')
+
+def load_settings():
+    """Load settings from disk. Returns defaults if file doesn't exist."""
+    try:
+        with open(get_config_path(), 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {'enabled': False}  # Default to keyboard mode
+
+def save_settings(settings):
+    """Save settings to disk."""
+    try:
+        with open(get_config_path(), 'w') as f:
+            json.dump(settings, f)
+    except Exception as e:
+        print(f"⚠️ Could not save settings: {e}")
 
 def create_icon_image(connected, enabled=True):
     """Create an emoji-based system tray icon."""
@@ -290,35 +319,35 @@ class App:
     def __init__(self):
         self.stop_event = threading.Event()
         self.icon = None
-        self.enabled = False  # True = open URLs, False = keyboard passthrough
+        settings = load_settings()
+        self.enabled = settings.get('enabled', False)  # True = open URLs, False = keyboard passthrough
         self.connected = False
+    
+    def set_mode(self, enabled):
+        """Set the mode and persist to disk."""
+        if self.enabled != enabled:
+            self.enabled = enabled
+            save_settings({'enabled': enabled})
+            mode = "URL mode" if enabled else "Keyboard mode"
+            print(f"🔄 Switched to {mode}")
+            if self.icon:
+                self.icon.icon = create_icon_image(self.connected, self.enabled)
+                self.icon.update_menu()
         
     def handle_barcode(self, barcode):
         """Route barcode based on enabled state, or handle command barcodes."""
         # Check for command barcodes
         if barcode == "[COMMAND] Keyboard":
-            if self.enabled:  # Only switch if not already in keyboard mode
-                self.enabled = False
-                print("🔄 Command: Switched to Keyboard mode")
-                self.icon.icon = create_icon_image(self.connected, self.enabled)
-                self.icon.update_menu()
+            self.set_mode(False)
             return
         elif barcode == "[COMMAND] Link":
-            if not self.enabled:  # Only switch if not already in link mode
-                self.enabled = True
-                print("🔄 Command: Switched to URL mode")
-                self.icon.icon = create_icon_image(self.connected, self.enabled)
-                self.icon.update_menu()
+            self.set_mode(True)
             return
         
         # Check if ScanPark is the foreground window - auto-switch to keyboard mode
         window_title = get_foreground_window_title()
         if window_title == "ScanPark - Google Chrome":
-            if self.enabled:  # Only switch if not already in keyboard mode
-                self.enabled = False
-                print("🔄 Auto: ScanPark detected, switched to Keyboard mode")
-                self.icon.icon = create_icon_image(self.connected, self.enabled)
-                self.icon.update_menu()
+            self.set_mode(False)
         
         # Normal barcode processing
         if self.enabled:
@@ -334,11 +363,7 @@ class App:
             self.icon.visible = True
     
     def toggle_enabled(self, icon, item):
-        self.enabled = not self.enabled
-        mode = "URL mode" if self.enabled else "Keyboard mode"
-        print(f"🔄 Switched to {mode}")
-        self.icon.icon = create_icon_image(self.connected, self.enabled)
-        self.icon.update_menu()
+        self.set_mode(not self.enabled)
             
     def quit(self, icon, item):
         self.stop_event.set()
@@ -365,7 +390,8 @@ class App:
         def on_ready(icon):
             """Called when the icon is ready - start the scanner thread."""
             print("✅ Barcode Scanner started - check system tray")
-            print("⌨️ Mode: Keyboard Input (click tray icon to toggle)")
+            mode = "URL mode" if self.enabled else "Keyboard mode"
+            print(f"📋 Mode: {mode} (click tray icon to toggle)")
             scanner = USBBarcodeScanner(self.handle_barcode, self.update_status)
             threading.Thread(target=scanner.read_loop, args=(self.stop_event,), daemon=True).start()
         
