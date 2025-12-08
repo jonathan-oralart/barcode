@@ -344,10 +344,12 @@ class App:
             self.set_mode(True)
             return
         
-        # Check if ScanPark is the foreground window - auto-switch to keyboard mode
+        # Check foreground window for auto-mode switching
         window_title = get_foreground_window_title()
         if window_title == "ScanPark - Google Chrome" or window_title == "Page 1 | Create Courier Ticket - Google Chrome":
             self.set_mode(False)
+        elif window_title == "Case Search Results - Google Chrome" or window_title == "Case Flow - Google Chrome":
+            self.set_mode(True)
         # Normal barcode processing
         if self.enabled:
             open_url(barcode)
