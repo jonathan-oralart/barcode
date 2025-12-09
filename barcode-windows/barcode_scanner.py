@@ -346,7 +346,7 @@ class App:
         
         # Check foreground window for auto-mode switching
         window_title = get_foreground_window_title()
-        if window_title == "ScanPark - Google Chrome" or window_title == "Page 1 | Create Courier Ticket - Google Chrome":
+        if window_title == "ScanPark - Google Chrome" or window_title == "Page 1 | Create Courier Ticket - Google Chrome" or window_title == "Uber Central - Google Chrome":
             self.set_mode(False)
         elif window_title == "Case Search Results - Google Chrome" or window_title == "Case Flow - Google Chrome":
             self.set_mode(True)
