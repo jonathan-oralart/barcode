@@ -45,6 +45,17 @@ except ImportError as e:
 VENDOR_ID = 0x05E0
 PRODUCT_ID = 0x1200
 URL_TEMPLATE = "https://lms.3shape.com/pages/admin/case_list.asp?page=case_search_result&cmd=search_result&searchbox_text={barcode}"
+KEYBOARD_WINDOW_TITLES = {
+    "ScanPark - Google Chrome",
+    "Page 1 | Create Courier Ticket - Google Chrome",
+    "Create Courier Ticket",
+    "Create Courier Ticket - Google Chrome",
+    "Uber Central - Google Chrome",
+}
+URL_WINDOW_TITLES = {
+    "Case Search Results - Google Chrome",
+    "Case Flow - Google Chrome",
+}
 
 # ============================================================================
 # Settings Persistence
@@ -346,9 +357,9 @@ class App:
         
         # Check foreground window for auto-mode switching
         window_title = get_foreground_window_title()
-        if window_title == "ScanPark - Google Chrome" or window_title == "Page 1 | Create Courier Ticket - Google Chrome" or window_title == "Uber Central - Google Chrome":
+        if window_title in KEYBOARD_WINDOW_TITLES:
             self.set_mode(False)
-        elif window_title == "Case Search Results - Google Chrome" or window_title == "Case Flow - Google Chrome":
+        elif window_title in URL_WINDOW_TITLES:
             self.set_mode(True)
         # Normal barcode processing
         if self.enabled:

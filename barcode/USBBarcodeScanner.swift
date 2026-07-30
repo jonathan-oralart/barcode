@@ -19,8 +19,12 @@ class USBBarcodeScanner {
     private let targetVendorID: Int? = 0x05E0  // 1504
     private let targetProductID: Int? = 0x1200 // 4608
     
-    // Window title that should receive direct keyboard input
-    private let passthroughWindowTitle = "Page 1 | Create Courier Ticket"
+    // Window titles that should receive direct keyboard input
+    private let passthroughWindowTitleFragment = "Page 1 | Create Courier Ticket"
+    private let exactPassthroughWindowTitles: Set<String> = [
+        "Create Courier Ticket",
+        "Create Courier Ticket - Google Chrome"
+    ]
     
     // Static reference for the event tap callback
     private static var sharedInstance: USBBarcodeScanner?
@@ -165,7 +169,8 @@ class USBBarcodeScanner {
             return false
         }
         
-        let isPassthrough = title.contains(passthroughWindowTitle)
+        let isPassthrough = title.contains(passthroughWindowTitleFragment)
+            || exactPassthroughWindowTitles.contains(title)
         if isPassthrough {
             print("🎯 Passthrough mode: window '\(title)' is active")
         }
