@@ -55,6 +55,11 @@ KEYBOARD_WINDOW_TITLES = {
 URL_WINDOW_TITLES = {
     "Case Search Results - Google Chrome",
     "Case Flow - Google Chrome",
+    # LMS "3ui" shell: a single-hit search opens the case record overlay
+    "Case Record - Google Chrome",
+    # LMS "3ui" shell placeholder titles shown for ~6-9s while a page loads
+    "3Shape LMS - Google Chrome",
+    "Classic page - Google Chrome",
 }
 
 # ============================================================================
