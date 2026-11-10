@@ -3,7 +3,7 @@
     xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
         <title>Barcode Scanner Updates</title>
-        <link>https://jonathan-oralart.github.io/barcode/appcast.xml</link>
+        <link>https://barcode.oralart.co.nz/appcast.xml</link>
         <description>Updates for USB Barcode Scanner</description>
         <language>en</language>
 

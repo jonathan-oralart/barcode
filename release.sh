@@ -194,7 +194,7 @@ OWNER=$(echo "$REPO_NAME" | cut -d'/' -f1)
 REPO=$(echo "$REPO_NAME" | cut -d'/' -f2)
 
 echo "✅ Appcast updated and pushed!"
-echo "   🌐 https://${OWNER}.github.io/${REPO}/appcast.xml"
+echo "   🌐 https://$(cat CNAME)/appcast.xml"
 echo ""
 echo "🎉 Done!"
 echo ""
