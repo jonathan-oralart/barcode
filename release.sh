@@ -40,6 +40,8 @@ echo ""
 # Update app version in project file
 echo "   → Updating app version to $VERSION..."
 sed -i.bak "s/MARKETING_VERSION = [^;]*/MARKETING_VERSION = $VERSION/" barcode.xcodeproj/project.pbxproj
+# Sparkle compares the feed's sparkle:version with CFBundleVersion, so keep them equal.
+sed -i.bak "s/CURRENT_PROJECT_VERSION = [^;]*/CURRENT_PROJECT_VERSION = $VERSION/" barcode.xcodeproj/project.pbxproj
 rm barcode.xcodeproj/project.pbxproj.bak
 
 # Create build directory
