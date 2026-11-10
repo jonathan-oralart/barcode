@@ -8,6 +8,26 @@
         <language>en</language>
 
     <item>
+        <title>Version 1.11</title>
+        <description><![CDATA[
+            <h2>What's New in Version 1.11</h2>
+            <ul>
+                <li>Updates now come from barcode.oralart.co.nz</li>
+                <li>Fixes the update prompt reappearing after you've already updated</li>
+            </ul>
+        ]]></description>
+        <pubDate>Tue, 10 Nov 2026 11:23:20 +0000</pubDate>
+        <enclosure
+            url="https://github.com/jonathan-oralart/barcode/releases/download/v1.11/barcode-1.11.zip"
+            sparkle:version="1.11"
+            sparkle:shortVersionString="1.11"
+            length="2978610"
+            type="application/octet-stream" />
+        <sparkle:minimumSystemVersion>10.15</sparkle:minimumSystemVersion>
+    </item>
+
+
+    <item>
         <title>Version 1.10</title>
         <description><![CDATA[
             <h2>What's New in Version 1.10</h2>
